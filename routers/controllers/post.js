@@ -29,7 +29,7 @@ const createPost = (req, res) => {
     });
 };
 
-const getPostById = (req, res) => {
+const getPostById = async(req, res) => {
   const { id } = req.params;
   postModel
     .find({ _id: id })
@@ -41,15 +41,13 @@ const getPostById = (req, res) => {
     });
 };
 
-const deletePost = (req, res) => {
+const deletePost = async(req, res) => {
   const { id } = req.params;
   let sameUser = false;
 
-  postModel.findOne({ _id: id, user: req.token.id }).then((result) => {
-    console.log(result);
+  await postModel.findOne({ _id: id, user: req.token.id }).then((result) => {
     if (result) {
       sameUser = true;
-      console.log(sameUser);
     }
   });
 
@@ -72,21 +70,36 @@ const deletePost = (req, res) => {
   }
 };
 
-const updatePost = (req, res) => {
-  const { name } = req.body;
+const updatePost = async(req, res) => {
   const { id } = req.params;
-  postModel
-    .findByIdAndUpdate(id, { $set: { name: name } })
-    .then((result) => {
-      if (result) {
-        res.status(200).json("post is updated");
-      } else {
-        res.status(404).json("post has not been found");
-      }
-    })
-    .catch((err) => {
-      res.status(400).json(err);
-    });
+  const { desc, img } = req.body;
+  let sameUser = false;
+
+  await postModel.findOne({ _id: id, user: req.token.id }).then((result) => {
+    console.log(result);
+    if (result) {
+      sameUser = true;
+      console.log(sameUser);
+    }
+  });
+
+  //here we check if it's Admin user OR the same user who created the post
+  if (req.token.role == "61a4eb0e6ad0c2fe2b45d0ac" || sameUser) {
+    postModel
+      .findByIdAndUpdate(id, { $set: { desc: desc, img: img } })
+      .then((result) => {
+        if (result) {
+          res.status(200).json("post updated");
+        } else {
+          res.status(404).json("post does not exist");
+        }
+      })
+      .catch((err) => {
+        res.status(400).json(err);
+      });
+  } else {
+    res.json("you don't have the priveleges to update the post");
+  }
 };
 
 module.exports = { getPosts, getPostById, createPost, updatePost, deletePost };

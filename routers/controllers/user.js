@@ -62,6 +62,8 @@ const login = (req, res) => {
   const { username, email, password } = req.body;
   const SECRET_KEY = process.env.SECRET_KEY;
   const savedEmail = email?.toLowerCase();
+
+  //here we check either (email or username) entered are true
   userModel
     .findOne({$or: [
       {email:savedEmail},

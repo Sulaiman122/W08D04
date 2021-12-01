@@ -12,7 +12,7 @@ const postRouter = require("./routers/routes/post");
 const commentRouter = require("./routers/routes/comment");
 
 
-app.use(roleRouter)
+app.use(roleRouter);
 app.use(userRouter);
 app.use(postRouter);
 app.use(commentRouter);
