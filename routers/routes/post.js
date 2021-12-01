@@ -8,7 +8,7 @@ postRouter.get("/posts/:id",authentication, getPostById);
 postRouter.post("/post",authentication, createPost);
 postRouter.put("/post/:id", authentication, updatePost);
 postRouter.delete("/post/:id",authentication, deletePost);
-postRouter.delete("/post/:id",authentication, giveLikeOrRemove);
+postRouter.post("/likePost/:id",authentication, giveLikeOrRemove);
 
 
 module.exports = postRouter;

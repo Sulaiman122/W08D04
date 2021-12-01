@@ -31,7 +31,7 @@ const createPost = (req, res) => {
     });
 };
 
-const getPostById = async(req, res) => {
+const getPostById = async (req, res) => {
   const { id } = req.params;
   postModel
     .find({ _id: id })
@@ -43,7 +43,7 @@ const getPostById = async(req, res) => {
     });
 };
 
-const deletePost = async(req, res) => {
+const deletePost = async (req, res) => {
   const { id } = req.params;
   let sameUser = false;
 
@@ -52,7 +52,6 @@ const deletePost = async(req, res) => {
       sameUser = true;
     }
   });
-
 
   const result = await roleModel.findById(req.token.role);
 
@@ -75,7 +74,7 @@ const deletePost = async(req, res) => {
   }
 };
 
-const updatePost = async(req, res) => {
+const updatePost = async (req, res) => {
   const { id } = req.params;
   const { desc, img } = req.body;
   let sameUser = false;
@@ -109,41 +108,58 @@ const updatePost = async(req, res) => {
   }
 };
 
-
-const giveLikeOrRemove = async(req, res) => {
+const giveLikeOrRemove = async (req, res) => {
   const { id } = req.params;
-  const { like } = req.body;
-  let sameUser = false;
 
-  likeModel.findOne({ _id: id, user: req.token.id }).then((result) => {
-    console.log(result);
-    if (result) {
-      sameUser = true;
-      console.log(sameUser);
-    }
-  });
-
-  const result = await roleModel.findById(req.token.role);
-
-  //here we check if it's Admin user OR the same user who created the post
-  if (result.role == "admin" || sameUser) {
-    postModel
-      .findByIdAndUpdate(id, { $set: { desc: desc, img: img } })
-      .then((result) => {
-        if (result) {
-          res.status(200).json("post updated");
-        } else {
-          res.status(404).json("post does not exist");
-        }
-      })
-      .catch((err) => {
-        res.status(400).json(err);
-      });
-  } else {
-    res.json("you don't have the priveleges to update the post");
-  }
+  postModel
+    .findOne({ _id: id })
+    .then(async (result) => {
+      // console.log(result);
+      if (result) {
+        likeModel
+          .findOne({ user: req.token.id, post: result._id })
+          .then((found) => {
+            if (found) {
+              //if liked before just change to opposite
+              likeModel
+                .updateOne(
+                  { user: req.token.id, post: result._id },
+                  { like: !found.like }
+                )
+                .then(() => {
+                  res.json("updated like");
+                });
+            } else {
+              //never been liked, do new like
+              const newLike = new likeModel({
+                like: true,
+                user: req.token.id,
+                post: result._id,
+              });
+              newLike
+                .save()
+                .then(() => {
+                  res.status(200).json("post has new like");
+                })
+                .catch((err) => {
+                  res.status(400).json(err);
+                });
+            }
+          });
+      } else {
+        res.status(400).json("wrong post ID");
+      }
+    })
+    .catch((err) => {
+      res.json(err);
+    });
 };
 
-
-
-module.exports = { getPosts, getPostById, createPost, updatePost, deletePost, giveLikeOrRemove};
+module.exports = {
+  getPosts,
+  getPostById,
+  createPost,
+  updatePost,
+  deletePost,
+  giveLikeOrRemove,
+};
