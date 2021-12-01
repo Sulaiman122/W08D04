@@ -1,6 +1,7 @@
 const postModel = require("../../db/models/post");
 const likeModel = require("../../db/models/like");
 const roleModel = require("../../db/models/role");
+const commentModel = require("../../db/models/comment");
 
 const getPosts = (req, res) => {
   postModel
@@ -35,27 +36,32 @@ const createPost = (req, res) => {
 
 const getPostById = async (req, res) => {
   const { id } = req.params;
-  postModel
-    .find({ _id: id })
-    .then((result) => {
-      res.status(200).json(result);
-    })
-    .catch((err) => {
-      res.status(400).json(err);
-    });
+  // postModel
+  //   .find({ _id: id })
+  //   .then((result) => {
+  //     res.status(200).json(result);
+  //   })
+  //   .catch((err) => {
+  //     res.status(400).json(err);
+  //   });
 
-  //post with its likes
-  // .find({_id: id})
-  // .then((result) => {
-  //   if (result) {
-  //     likeModel
-  //     .find({post:result._id}).then((likes)=>{
-  //       res.status(200).json({result, likes});
-  //     });
-  //   } else {
-  //     res.status(404).json("no posts found");
-  //   }
-  // })
+  postModel.find({ _id: id }).then((result) => {
+    if (result) {
+      commentModel.find({ post: result._id }).then((comments) => {
+        likeModel.find({ post: result._id }).then((likes) => {
+          res.status(200).json({ result, comments, likes });
+        }).catch((err) => {
+          res.status(400).json(err);
+        });
+      }).catch((err) => {
+        res.status(400).json(err);
+      });
+    } else {
+      res.status(404).json("no post found");
+    }
+  }).catch((err) => {
+    res.status(400).json(err);
+  });;
 };
 
 const deletePost = async (req, res) => {
@@ -66,7 +72,9 @@ const deletePost = async (req, res) => {
     if (result) {
       sameUser = true;
     }
-  });
+  }).catch((err) => {
+    res.status(400).json(err);
+  });;
 
   const result = await roleModel.findById(req.token.role);
 
@@ -98,7 +106,9 @@ const updatePost = async (req, res) => {
     if (result) {
       sameUser = true;
     }
-  });
+  }).catch((err) => {
+    res.status(400).json(err);
+  });;
 
   const result = await roleModel.findById(req.token.role);
 
@@ -129,10 +139,7 @@ const giveLikeOrRemove = async (req, res) => {
       if (found) {
         //if liked before just change to opposite
         likeModel
-          .deleteOne(
-            { user: req.token.id, post: id },
-            { like: !found.like }
-          )
+          .deleteOne({ user: req.token.id, post: id }, { like: !found.like })
           .then(() => {
             res.json("like removed");
           })
