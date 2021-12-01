@@ -47,12 +47,13 @@ const getPostById = async (req, res) => {
 
   postModel.find({ _id: id }).then((result) => {
     if (result) {
-      commentModel.find({ post: result._id }).then((comments) => {
-        likeModel.find({ post: result._id }).then((likes) => {
-          res.status(200).json({ result, comments, likes });
-        }).catch((err) => {
-          res.status(400).json(err);
-        });
+      console.log(result);
+      commentModel.find({ post: id }).then((comments) => {
+          likeModel.find({ post: id }).then((likes) => {
+            res.status(200).json({ result, comments, likes });
+          }).catch((err) => {
+            res.status(400).json(err);
+          });        
       }).catch((err) => {
         res.status(400).json(err);
       });
