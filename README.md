@@ -23,7 +23,7 @@ Below is an example of how you can installing and setting up your app.
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/Sulaiman122/W08D02.git
+   git clone https://github.com/Sulaiman122/W08D04.git
    ```
 2. npm i "to install all packages for this project"
 
