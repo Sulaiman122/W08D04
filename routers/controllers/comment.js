@@ -1,24 +1,32 @@
 const commentModel = require("../../db/models/comment");
 const roleModel = require("../../db/models/role");
-
+const postModel = require("../../db/models/post");
 
 const createComment = (req, res) => {
   const { id } = req.params;
 
-  const { comment , isDeleted } = req.body;
+  const { comment, isDeleted } = req.body;
 
-
-  const newComment = new commentModel({ comment, isDeleted, user: req.token.id, post:id });
+  const newComment = new commentModel({
+    comment,
+    isDeleted,
+    user: req.token.id,
+    post: id,
+  });
   newComment
     .save()
     .then((result) => {
+      postModel
+        .findByIdAndUpdate(id, { $push: { comment: result._id } })
+        .then((result) => {
+          console.log(result);
+        });
       res.status(201).json(result);
     })
     .catch((err) => {
       res.status(400).json(err);
     });
 };
-
 
 const deleteComment = async (req, res) => {
   const { id } = req.params;
@@ -80,8 +88,6 @@ const updateComment = async (req, res) => {
     res.status(400).json("you don't have the priveleges to update the comment");
   }
 };
-
-
 
 module.exports = {
   createComment,

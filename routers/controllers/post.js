@@ -6,12 +6,10 @@ const commentModel = require("../../db/models/comment");
 const getPosts = (req, res) => {
   postModel
     .find({ isDeleted: false })
-    .populate("user")
+    .populate({path:"user comment like", match:{isDeleted:false}})
     .then((result) => {
       if (result) {
-        // likeModel.find({ post: result._id }).then((likes) => {
-        // });
-        res.status(200).json({ result });
+        res.status(200).send(result);
       } else {
         res.status(404).json("no posts found");
       }
@@ -36,33 +34,19 @@ const createPost = (req, res) => {
 
 const getPostById = async (req, res) => {
   const { id } = req.params;
-  // postModel
-  //   .find({ _id: id })
-  //   .then((result) => {
-  //     res.status(200).json(result);
-  //   })
-  //   .catch((err) => {
-  //     res.status(400).json(err);
-  //   });
 
-  postModel.find({ _id: id }).then((result) => {
+  postModel.find({ _id: id, isDeleted: false })
+  .populate({path:"user comment like", match:{isDeleted:false}})
+  .then((result) => {
     if (result) {
-      console.log(result);
-      commentModel.find({ post: id }).then((comments) => {
-          likeModel.find({ post: id }).then((likes) => {
-            res.status(200).json({ result, comments, likes });
-          }).catch((err) => {
-            res.status(400).json(err);
-          });        
-      }).catch((err) => {
-        res.status(400).json(err);
-      });
+      res.status(200).json(result);
     } else {
       res.status(404).json("no post found");
     }
   }).catch((err) => {
     res.status(400).json(err);
   });;
+
 };
 
 const deletePost = async (req, res) => {
@@ -155,13 +139,15 @@ const giveLikeOrRemove = async (req, res) => {
           post: id,
         });
         newLike
-          .save()
-          .then(() => {
-            res.status(200).json("post has new like");
-          })
-          .catch((err) => {
-            res.status(400).json(err);
-          });
+        .save()
+        .then((result) => {
+          postModel
+            .findByIdAndUpdate(id, { $push: { like: result._id } })
+            .then((result) => {
+              console.log(result);
+            });
+          res.status(201).json(result);
+        })
       }
     })
     .catch((err) => {

@@ -11,7 +11,7 @@ const userRouter = express.Router();
 
 userRouter.post("/register", register);
 userRouter.post("/login", login);
-userRouter.get("/users",/* authentication, authorization, */ getUsers);
+userRouter.get("/users", authentication, authorization, getUsers);
 userRouter.delete("/users/:id", authentication, authorization, removeUser);
 
 module.exports = userRouter;
