@@ -47,7 +47,7 @@ const deleteComment = async (req, res) => {
         res.status(400).json(err);
       });
   } else {
-    res.json("you don't have the priveleges to remove the comment");
+    res.status(400).json("you don't have the priveleges to remove the comment");
   }
 };
 
@@ -77,7 +77,7 @@ const updateComment = async (req, res) => {
         res.status(400).json(err);
       });
   } else {
-    res.json("you don't have the priveleges to update the comment");
+    res.status(400).json("you don't have the priveleges to update the comment");
   }
 };
 

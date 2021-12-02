@@ -5,13 +5,13 @@ const commentModel = require("../../db/models/comment");
 
 const getPosts = (req, res) => {
   postModel
-    .find({ isDeleted: false, user: req.token.id })
+    .find({ isDeleted: false })
     .populate("user")
     .then((result) => {
       if (result) {
-        likeModel.find({ post: result._id }).then((likes) => {
-          res.status(200).json({ result, likes });
-        });
+        // likeModel.find({ post: result._id }).then((likes) => {
+        // });
+        res.status(200).json({ result });
       } else {
         res.status(404).json("no posts found");
       }
@@ -94,7 +94,7 @@ const deletePost = async (req, res) => {
         res.status(400).json(err);
       });
   } else {
-    res.json("you don't have the priveleges to remove the post");
+    res.status(400).json("you don't have the priveleges to remove the post");
   }
 };
 
@@ -128,7 +128,7 @@ const updatePost = async (req, res) => {
         res.status(400).json(err);
       });
   } else {
-    res.json("you don't have the priveleges to update the post");
+    res.status(400).json("you don't have the priveleges to update the post");
   }
 };
 
@@ -142,7 +142,7 @@ const giveLikeOrRemove = async (req, res) => {
         likeModel
           .deleteOne({ user: req.token.id, post: id }, { like: !found.like })
           .then(() => {
-            res.json("like removed");
+            res.status(201).json("like removed");
           })
           .catch((err) => {
             res.status(400).json(err);
