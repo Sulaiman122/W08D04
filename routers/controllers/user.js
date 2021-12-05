@@ -25,11 +25,11 @@ const removeUser = (req, res) => {
         if (result) {
           res.status(200).json("user removed");
         } else {
-          res.status(404).json("user does not exist");
+          res.status(200).json("user does not exist");
         }
       })
       .catch((err) => {
-        res.status(400).json(err);
+        res.status(200).json(err);
       });
 };
 
@@ -54,7 +54,7 @@ const register = async (req, res) => {
       res.status(201).json(result);
     })
     .catch((err) => {
-      res.status(400).json(err);
+      res.status(200).json(err);
     });
 };
 
@@ -68,7 +68,7 @@ const login = (req, res) => {
     .findOne({$or: [
       {email:savedEmail},
       {username}
-  ]}).then(async (result) => {
+  ]}).populate('role').then(async (result) => {
       if (result) {
         if (savedEmail === result.email || username === result.username) {
           const payload = {
@@ -86,17 +86,17 @@ const login = (req, res) => {
           if (unhashPassword) {
             res.status(200).json({result, token});
           } else {
-            res.status(400).json("invalid email or password");
+            res.status(200).json("invalid email or password");
           }
         } else {
-          res.status(400).json("invalid email or password");
+          res.status(200).json("invalid email or password");
         }
       } else {
-        res.status(400).json("email does not exist");
+        res.status(200).json("email does not exist");
       }
     })
     .catch((err) => {
-      res.status(400).json(err);
+      res.status(200).json(err);
     });
 };
 

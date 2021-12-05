@@ -3,7 +3,7 @@ const likeModel = require("../../db/models/like");
 const roleModel = require("../../db/models/role");
 const commentModel = require("../../db/models/comment");
 
-const getPosts = (req, res) => {
+const getPostsForAdmin = (req, res) => {
   postModel
     .find({ isDeleted: false })
     .populate({path:"user comment like", match:{isDeleted:false}})
@@ -11,11 +11,27 @@ const getPosts = (req, res) => {
       if (result) {
         res.status(200).send(result);
       } else {
-        res.status(404).json("no posts found");
+        res.status(200).json("no posts found");
       }
     })
     .catch((err) => {
-      res.status(400).json(err);
+      res.status(200).json(err);
+    });
+};
+
+const getPosts = (req, res) => {
+  postModel
+    .find({ isDeleted: false, user: req.token.id })
+    .populate({path:"user comment like", match:{isDeleted:false}})
+    .then((result) => {
+      if (result) {
+        res.status(200).send(result);
+      } else {
+        res.status(200).json("no posts found");
+      }
+    })
+    .catch((err) => {
+      res.status(200).json(err);
     });
 };
 
@@ -28,7 +44,7 @@ const createPost = (req, res) => {
       res.status(201).json(result);
     })
     .catch((err) => {
-      res.status(400).json(err);
+      res.status(200).json(err);
     });
 };
 
@@ -41,10 +57,10 @@ const getPostById = async (req, res) => {
     if (result) {
       res.status(200).json(result);
     } else {
-      res.status(404).json("no post found");
+      res.status(200).json("no post found");
     }
   }).catch((err) => {
-    res.status(400).json(err);
+    res.status(200).json(err);
   });;
 
 };
@@ -58,7 +74,7 @@ const deletePost = async (req, res) => {
       sameUser = true;
     }
   }).catch((err) => {
-    res.status(400).json(err);
+    res.status(200).json(err);
   });;
 
   const result = await roleModel.findById(req.token.role);
@@ -71,14 +87,14 @@ const deletePost = async (req, res) => {
         if (result) {
           res.status(200).json("post removed");
         } else {
-          res.status(404).json("post does not exist");
+          res.status(200).json("post does not exist");
         }
       })
       .catch((err) => {
-        res.status(400).json(err);
+        res.status(200).json(err);
       });
   } else {
-    res.status(400).json("you don't have the priveleges to remove the post");
+    res.status(200).json("you don't have the priveleges to remove the post");
   }
 };
 
@@ -162,4 +178,5 @@ module.exports = {
   updatePost,
   deletePost,
   giveLikeOrRemove,
+  getPostsForAdmin
 };
