@@ -1,5 +1,12 @@
 # W08D04 (Social Media)
 
+## UML diagram
+<img src='https://i.ibb.co/6PCmkYg/Untitled-drawio.png' alt='img'/>
+
+## ER diagram
+<img src='https://i.ibb.co/wLV0SXw/soical-media-ERD.jpg' alt='img'/>
+
+
 ## About The Project
 
 Project "Social Media" where user can create post/read posts/update posts/delete posts and Login/Sign up with authentication and authorization using hash password and token where only verified user can create/update/delete/seeUsers/seePosts/deleteUser
